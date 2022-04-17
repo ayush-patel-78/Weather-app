@@ -8,6 +8,11 @@ let forecastBaseEndpoint =
   'https://api.openweathermap.org/data/2.5/forecast?units=metric&appid=' +
   weatherAPIKey
 
+let geocodingBaseEndpoint =
+  'http://api.openweathermap.org/geo/1.0/direct?limit=5&appid=' +
+  weatherAPIKey +
+  '&q='
+
 // Variable declaration for selecting HTML input value
 
 let searchInp = document.querySelector('.weather_search')
@@ -19,6 +24,44 @@ let pressure = document.querySelector('.weather_indicator--pressure>.value')
 let temperature = document.querySelector('.weather_temperature>.value')
 let image = document.querySelector('.weather_image')
 let forecastBlock = document.querySelector('.weather_forecast')
+let weatherImages = [
+  {
+    url: 'images/broken-clouds.png',
+    ids: [803, 804],
+  },
+  {
+    url: 'images/clear-sky.png',
+    ids: [800],
+  },
+  {
+    url: 'images/few-clouds.png',
+    ids: [801],
+  },
+  {
+    url: 'images/mist.png',
+    ids: [701, 711, 721, 731, 741, 751, 761, 762, 771, 781],
+  },
+  {
+    url: 'images/rain.png',
+    ids: [500, 501, 502, 503, 504],
+  },
+  {
+    url: 'images/scattered-clouds.png',
+    ids: [802],
+  },
+  {
+    url: 'images/shower-rain.png',
+    ids: [520, 521, 522, 531, 300, 301, 302, 310, 311, 312, 313, 314, 321],
+  },
+  {
+    url: 'images/snow.png',
+    ids: [511, 600, 601, 602, 611, 612, 613, 615, 616, 620, 621, 622],
+  },
+  {
+    url: 'images/thunderstorm.png',
+    ids: [200, 201, 202, 210, 211, 212, 221, 230, 231, 232],
+  },
+]
 
 let getWeatherByCityName = async (city) => {
   let endPoint = weatherBaseEndPoint + '&q=' + city
@@ -43,7 +86,7 @@ let getForecastByCityID = async (id) => {
       daily.push(day)
     }
   })
-  console.log(daily)
+  console.log('daily weather:' + daily)
   return daily
 }
 
@@ -52,10 +95,6 @@ let updateCurrentWeather = (data) => {
   day.innerText = dayOfWeek()
   humidity.innerText = data.main.humidity
   pressure.innerText = data.main.pressure
-  temperature.innerText =
-    data.main.temp > 0
-      ? '+' + Math.round(data.main.temp)
-      : Math.round(data.main.temp)
 
   let windDirection
   let deg = data.wind.deg
@@ -77,6 +116,18 @@ let updateCurrentWeather = (data) => {
     windDirection = 'North'
   }
   wind.innerText = windDirection + ',' + data.wind.speed
+
+  temperature.innerText =
+    data.main.temp > 0
+      ? '+' + Math.round(data.main.temp)
+      : Math.round(data.main.temp)
+
+  let imgID = data.weather[0].id
+  weatherImages.forEach((obj) => {
+    if (obj.ids.indexOf(imgID) != -1) {
+      image.src = obj.url
+    }
+  })
 }
 let dayOfWeek = (
   dt = new Date().getTime() /* generating current time into milli seconds if date (dt in milliseconds) is not passed */,
@@ -100,6 +151,18 @@ searchInp.addEventListener('keydown', async (e) => {
   if (e.keyCode === 13) {
     weatherForCity(searchInp.value)
   }
+})
+searchInp.addEventListener('input', async () => {
+  if (searchInp.value.length() <= 2) {
+    return
+  }
+  let endpoint = geocodingBaseEndpoint + searchInp.value
+  let result = await fetch(endpoint)
+  result = await result.json()
+  console.log('Suggestions of city :' + result)
+  result.forEach((city) => {
+    console.log(`${city.name},${city.state},${city.country}`)
+  })
 })
 
 let updateForecast = (forecast) => {
