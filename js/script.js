@@ -15,6 +15,8 @@ let geocodingBaseEndpoint =
 
 // Variable declaration for selecting HTML input value
 
+let datalist = document.querySelector('#suggestions')
+
 let searchInp = document.querySelector('.weather_search')
 let city = document.querySelector('.weather_city')
 let day = document.querySelector('.weather_day')
@@ -141,6 +143,14 @@ let dayOfWeek = (
 
 let weatherForCity = async (city) => {
   let weather = await getWeatherByCityName(city)
+  if (weather.cod === '404') {
+    Swal.fire({
+      icon: 'error',
+      title: 'OOPs...',
+      text: 'You Typed wrong city name',
+    })
+    return
+  }
   updateCurrentWeather(weather)
   console.log(weather)
   let cityID = weather.id
@@ -153,14 +163,21 @@ searchInp.addEventListener('keydown', async (e) => {
   }
 })
 searchInp.addEventListener('input', async () => {
-  if (searchInp.value.length() <= 2) {
+  if (searchInp.value.length <= 2) {
     return
   }
   let endpoint = geocodingBaseEndpoint + searchInp.value
   let result = await fetch(endpoint)
   result = await result.json()
   console.log('Suggestions of city :' + result)
+  datalist.innerHTML = ''
+
   result.forEach((city) => {
+    let option = document.createElement('option')
+    option.value = `${city.name},${city.state ? ',' + city.state : ''},${
+      city.country
+    }` //all cities are not having state therefore by use of ternary operator we can handle display of state
+    datalist.appendChild(option)
     console.log(`${city.name},${city.state},${city.country}`)
   })
 })
