@@ -9,12 +9,13 @@ let forecastBaseEndpoint =
   weatherAPIKey
 
 let geocodingBaseEndpoint =
-  'http://api.openweathermap.org/geo/1.0/direct?limit=5&appid=' +
+  'https://api.openweathermap.org/geo/1.0/direct?limit=5&appid=' +
   weatherAPIKey +
   '&q='
 
 let reverseGeocodingBaseEndpoint =
-  'http://api.openweathermap.org/geo/1.0/reverse?limit=5&appid=' + weatherAPIKey
+  'https://api.openweathermap.org/geo/1.0/reverse?limit=5&appid=' +
+  weatherAPIKey
 
 // Variable declaration for selecting HTML input value
 
