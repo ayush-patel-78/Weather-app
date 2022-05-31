@@ -191,7 +191,7 @@ let updateForecast = (forecast) => {
   let forecastItem = ''
   forecast.forEach((day) => {
     let iconUrl =
-      'http://openweathermap.org/img/wn/' + day.weather[0].icon + '@2x.png'
+      'https://openweathermap.org/img/wn/' + day.weather[0].icon + '@2x.png'
     let temperature =
       day.main.temp > 0
         ? '+' + Math.round(day.main.temp)
