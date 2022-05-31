@@ -13,6 +13,9 @@ let geocodingBaseEndpoint =
   weatherAPIKey +
   '&q='
 
+let reverseGeocodingBaseEndpoint =
+  'http://api.openweathermap.org/geo/1.0/reverse?limit=5&appid=' + weatherAPIKey
+
 // Variable declaration for selecting HTML input value
 
 let datalist = document.querySelector('#suggestions')
@@ -76,7 +79,7 @@ let getForecastByCityID = async (id) => {
   let endPoint = forecastBaseEndpoint + '&id=' + id
   let result = await fetch(endPoint)
   let forecast = await result.json()
-  console.log(forecast)
+  // console.log(forecast)
   let forecastList = forecast.list
   let daily = []
   forecastList.forEach((day) => {
@@ -88,7 +91,7 @@ let getForecastByCityID = async (id) => {
       daily.push(day)
     }
   })
-  console.log('daily weather:' + daily)
+  // console.log('daily weather:' + daily)
   return daily
 }
 
@@ -152,7 +155,7 @@ let weatherForCity = async (city) => {
     return
   }
   updateCurrentWeather(weather)
-  console.log(weather)
+  // console.log(weather)
   let cityID = weather.id
   let forecast = await getForecastByCityID(cityID)
   updateForecast(forecast)
@@ -169,7 +172,7 @@ searchInp.addEventListener('input', async () => {
   let endpoint = geocodingBaseEndpoint + searchInp.value
   let result = await fetch(endpoint)
   result = await result.json()
-  console.log('Suggestions of city :' + result)
+  // console.log('Suggestions of city :' + result)
   datalist.innerHTML = ''
 
   result.forEach((city) => {
@@ -178,7 +181,7 @@ searchInp.addEventListener('input', async () => {
       city.country
     }` //all cities are not having state therefore by use of ternary operator we can handle display of state
     datalist.appendChild(option)
-    console.log(`${city.name},${city.state},${city.country}`)
+    // console.log(`${city.name},${city.state},${city.country}`)
   })
 })
 
@@ -193,7 +196,7 @@ let updateForecast = (forecast) => {
         ? '+' + Math.round(day.main.temp)
         : Math.round(day.main.temp)
     let dayName = dayOfWeek(day.dt * 1000) //day.dt*1000 converting seconds into milliseconds
-    console.log(dayName)
+    // console.log(dayName)
     forecastItem += `<article class="weather_forecast_item">
     <img
       src="${iconUrl}"
@@ -208,4 +211,27 @@ let updateForecast = (forecast) => {
   </article>`
   })
   forecastBlock.innerHTML = forecastItem
+}
+
+window.onload = () => {
+  let options = { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+  navigator.geolocation.getCurrentPosition(success, error, options)
+}
+
+async function success(position) {
+  let latitude = position.coords.latitude
+  let longitude = position.coords.longitude
+  let endPoint =
+    reverseGeocodingBaseEndpoint + '&lat=' + latitude + '&lon=' + longitude
+  let result = await fetch(endPoint)
+  let city = await result.json()
+  console.log(city)
+  let name = city[0].name
+  let cityname = name.split(' ')
+  let location = cityname + ', ' + city[0].state + ', ' + city[0].country
+  weatherForCity(location)
+}
+
+function error(err) {
+  console.warn(`ERROR(${err.code}): ${err.message}`)
 }
