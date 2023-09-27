@@ -147,12 +147,13 @@ let dayOfWeek = (
 
 let weatherForCity = async (city) => {
   let weather = await getWeatherByCityName(city)
-  if (weather.cod === '404') {
+  if (weather.cod == '404') {
     Swal.fire({
       icon: 'error',
       title: 'OOPs...',
       text: 'You Typed wrong city name',
     })
+    document.getElementById("search_input").value =""
     return
   }
   updateCurrentWeather(weather)
